@@ -19,7 +19,7 @@
     <div class="mat-elevation-z8">
         <table mat-table [dataSource]="dataSourceEventos" matSort>
 
-            <!-- Column ID punto de atención -->
+
             <ng-container matColumnDef="codigoQueja">
                 <th mat-header-cell *matHeaderCellDef class="headerTable" mat-sort-header> ID </th>
                 <td mat-cell *matCellDef="let row"> {{row.codigoQueja}} </td>
@@ -31,10 +31,15 @@
                 <td mat-cell *matCellDef="let row"> {{row.nombre}}</td>
             </ng-container>
 
-            <!-- Column nombre punto de atención-->
             <ng-container matColumnDef="detalleQueja">
                 <th mat-header-cell *matHeaderCellDef class="headerTable" mat-sort-header> Detalle <br>Queja </th>
                 <td mat-cell *matCellDef="let row"> {{row.detalleQueja}} </td>
+            </ng-container>
+
+
+            <ng-container matColumnDef="medioIngreso">
+                <th mat-header-cell *matHeaderCellDef class="headerTable" mat-sort-header> Medio <br>Queja </th>
+                <td mat-cell *matCellDef="let row"> {{row.medioIngreso}} </td>
             </ng-container>
 
             <ng-container matColumnDef="estado">
@@ -74,12 +79,120 @@
             </div>
             <div class="modal-body">
                 <form [formGroup]="QuejasForm">
+                    <div class="row">
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Ingreso Queja</mat-label>
+                                <mat-select formControlName="medioIngreso">
+                                    <mat-option *ngFor="let ingreso of ingresos" [value]="ingreso.value">
+                                        {{ingreso.viewValue}}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="QuejasForm.controls.medioIngreso.hasError('required')">
+                                    El punto de atención es requerido
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Nombre</mat-label>
+                                <input matInput formControlName="nombre" matInput placeholder="Nombre" maxlength="100"
+                                    autocomplete="off">
+                                <mat-hint align="end">{{QuejasForm.controls.nombre.value?.length || 0}}/100
+                                </mat-hint>
+                                <mat-error *ngIf="QuejasForm.controls.nombre.hasError('required')">
+                                    El nombre es requerido
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Correo Electronico</mat-label>
+                                <input matInput type="email" id="correo" #correo formControlName="correoElectronico"
+                                    placeholder="Correo Electronico" maxlength="50" autocomplete="off">
+                                <mat-hint align="end">{{QuejasForm.controls.correoElectronico.value?.length ||
+                                    0}}/50</mat-hint>
+                                <mat-error *ngIf="QuejasForm.controls.correoElectronico.hasError('required')">
+                                    El correo electronico es requerido</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Telefono</mat-label>
+                                <input matInput formControlName="telefono" matInput placeholder="Telefono" maxlength="16"
+                                    autocomplete="off">
+                                <mat-hint align="end">{{QuejasForm.controls.telefono.value?.length || 0}}/16
+                                </mat-hint>
+                                <mat-error *ngIf="QuejasForm.controls.telefono.hasError('required')">
+                                    Numero de telefono requerido
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Oficina</mat-label>
+                                <input matInput formControlName="oficina" matInput placeholder="Oficina" maxlength="16"
+                                    autocomplete="off">
+                                <mat-hint align="end">{{QuejasForm.controls.oficina.value?.length || 0}}/16
+                                </mat-hint>
+                                <mat-error *ngIf="QuejasForm.controls.oficina.hasError('required')">
+                                    Numero de oficina requerido
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Nombre Empleado</mat-label>
+                                <input matInput formControlName="nombreEmpleado" matInput placeholder="Oficina"
+                                    maxlength="50" autocomplete="off">
+                                <mat-hint align="end">{{QuejasForm.controls.oficina.value?.length || 0}}/50
+                                </mat-hint>
+                                <mat-error *ngIf="QuejasForm.controls.nombreEmpleado.hasError('required')">
+                                    Nombre empleado requerido
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Detalle Queja</mat-label>
+                                <textarea matInput formControlName="detalleQueja" matInput placeholder="Detalle Queja"
+                                    maxlength="250" autocomplete="off"></textarea>
+                                <mat-hint align="end">{{QuejasForm.controls.detalleQueja.value?.length || 0}}/250
+                                </mat-hint>
+                                <mat-error *ngIf="QuejasForm.controls.detalleQueja.hasError('required')">
+                                    Detalle de la queja requerido
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-6">
+                            <div class="col-ms-6 col-md-6 col-lg-6 margenArriba">
+                                <!-- <label>
+                                    <img src="assets/img/pdf.png" alt="" class="tipoDocumento">Acta de
+                                    Negociacion</label>
+                                <br> -->
+                                <input (change)="seleccionArchivo($event)"  class="full mt-2"  type="file" formControlName="documento" id="documento">
+                            </div>
+                        </div>
+                        <!-- <div class="form-grop">
+                            <label>Seleccionar Documento</label>
+                            <input type="file" formControlName="documento" id="documento" class="form-control">
+                        </div> -->
+                    </div>
 
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btnCancelar" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" data-bs-dismiss="modal" class="btn btn-primary">Guardar</button>
+                <button type="button" data-bs-dismiss="modal" (click)="guardarQueja(QuejasForm.value)" class="btn btn-primary">Guardar</button>
+
+                <!-- <button type="button" data-bs-dismiss="modal" (click)="guardarQueja(QuejasForm.value)" class="btn btn-primary">Guardar</button> -->
+                <!-- <button type="button" data-bs-dismiss="modal" (click)="uploadFile()" class="btn btn-primary">Guardar pdf</button> -->
             </div>
         </div>
     </div>
