@@ -6,20 +6,21 @@ import { LoginService } from './login.service';
 @Injectable({
   providedIn: 'root'
 })
-export class CuentahabienteGuard implements CanActivate {
-
+export class CentralizadorGuard implements CanActivate {
   constructor(private loginService:LoginService,private router:Router){
 
   }
+
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-      if(this.loginService.isLoggedIn() && this.loginService.getUserRol() == 'CUENTAHABIENTE'){
+      if(this.loginService.isLoggedIn() && this.loginService.getUserRol() == 'CENTRALIZADOR'){
         return true;
       }
-  
+
       this.router.navigate(['login']);
       return false;
   }
   
+
 }

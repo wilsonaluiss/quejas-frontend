@@ -133,7 +133,7 @@
               <mat-form-field appearance="outline">
                 <mat-label>Regiones</mat-label>
                 <mat-select formControlName="regionAtencion">
-                  <mat-option *ngFor="let region of regiones" [value]="region.codigoRegionalId">
+                  <mat-option *ngFor="let region of regiones" [value]="region.codigoRegionalId" disabled="true">
                     {{region.nombreRegion}}
                   </mat-option>
 

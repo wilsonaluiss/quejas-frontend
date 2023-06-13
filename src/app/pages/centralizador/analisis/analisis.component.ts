@@ -10,11 +10,12 @@ import { UploadFileService } from 'src/app/services/uploadFileService.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-operador',
-  templateUrl: './operador.component.html',
-  styleUrls: ['./operador.component.css']
+  selector: 'app-analisis',
+  templateUrl: './analisis.component.html',
+  styleUrls: ['./analisis.component.css']
 })
-export class OperadorComponent implements OnInit {
+export class AnalisisComponent implements OnInit {
+
 
   asignar: any;
   detalleQueja: any;
@@ -31,6 +32,7 @@ export class OperadorComponent implements OnInit {
     'accion'
   ];
 
+
   constructor(
     private service: ServiceService,
     private spinner: NgxSpinnerService,
@@ -40,6 +42,7 @@ export class OperadorComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
     this.spinner.show();
     this.isLoggedIn = this.loginService.isLoggedIn();
     this.user = this.loginService.getUser();
@@ -65,10 +68,10 @@ export class OperadorComponent implements OnInit {
   }
 
   obtenerEventos() {
-    this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'queja/operador').toPromise().then(data => {
+    this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'queja/asignadas').toPromise().then(data => {
       console.log(data);
       data.forEach(element => {
-        element.codigoEtapa = element.codigoEtapa == 5 ? 'Reanálisis' : '';
+        element.codigoEtapa = element.codigoEtapa == 2 ? 'Analisis' : '';
       });
       this.dataSourceEventos.sort = this.sort;
       this.dataSourceEventos = new MatTableDataSource(data);

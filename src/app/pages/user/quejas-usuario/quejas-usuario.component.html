@@ -3,7 +3,7 @@
 
 
     <!-- Button trigger Ingreso de Informacion -->
-    <button mat-raised-button type="button" class="botones mt-4 mb-4" data-bs-toggle="modal"
+    <button mat-raised-button type="button"  class="botones mt-4 mb-4" data-bs-toggle="modal"
         data-bs-target="#staticAgregar">
         <mat-icon>add_circle_outline</mat-icon>
         Queja
@@ -48,13 +48,13 @@
             </ng-container>
 
             <!-- Columna Acción -->
-            <ng-container matColumnDef="accion">
+            <!-- <ng-container matColumnDef="accion">
                 <th mat-header-cell *matHeaderCellDef class="headerTable" class="headerTable"> Acción </th>
                 <td mat-cell *matCellDef="let evento" class="accion">
                     <span class="material-icons" title="Ver más" data-bs-toggle="modal"
                         data-bs-target="#staticDetalleEventos" style="cursor: pointer;">visibility</span>
                 </td>
-            </ng-container>
+            </ng-container> -->
 
             <tr mat-header-row *matHeaderRowDef="eventoColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: eventoColumns;"></tr>
@@ -83,14 +83,11 @@
                         <div class="col-6">
                             <mat-form-field appearance="outline">
                                 <mat-label>Ingreso Queja</mat-label>
-                                <mat-select formControlName="medioIngreso">
+                                <mat-select formControlName="medioIngreso" [disabled]="true">
                                     <mat-option *ngFor="let ingreso of ingresos" [value]="ingreso.value">
                                         {{ingreso.viewValue}}
                                     </mat-option>
                                 </mat-select>
-                                <mat-error *ngIf="QuejasForm.controls.medioIngreso.hasError('required')">
-                                    El punto de atención es requerido
-                                </mat-error>
                             </mat-form-field>
                         </div>
                         <div class="col-6">
@@ -121,9 +118,9 @@
                         <div class="col-6">
                             <mat-form-field appearance="outline">
                                 <mat-label>Telefono</mat-label>
-                                <input matInput formControlName="telefono" matInput placeholder="Telefono" maxlength="16"
-                                    autocomplete="off">
-                                <mat-hint align="end">{{QuejasForm.controls.telefono.value?.length || 0}}/16
+                                <input matInput formControlName="telefono" matInput placeholder="Telefono" maxlength="8"
+                                    autocomplete="off" (keypress)="reglasNegocio.soloNumeros($event)">
+                                <mat-hint align="end">{{QuejasForm.controls.telefono.value?.length || 0}}/8
                                 </mat-hint>
                                 <mat-error *ngIf="QuejasForm.controls.telefono.hasError('required')">
                                     Numero de telefono requerido
@@ -176,7 +173,8 @@
                                     <img src="assets/img/pdf.png" alt="" class="tipoDocumento">Acta de
                                     Negociacion</label>
                                 <br> -->
-                                <input (change)="seleccionArchivo($event)"  class="full mt-2"  type="file" formControlName="documento" id="documento">
+                                <input (change)="seleccionArchivo($event)" class="full mt-2" type="file"
+                                    formControlName="documento" id="documento">
                             </div>
                         </div>
                         <!-- <div class="form-grop">
@@ -184,12 +182,28 @@
                             <input type="file" formControlName="documento" id="documento" class="form-control">
                         </div> -->
                     </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Tipo de Queja</mat-label>
+                                <mat-select formControlName="tipoQueja" >
+                                    <mat-option *ngFor="let qms of qms" [value]="qms.codigoTipoQueja" (click)="numeroQueja()" >
+                                        {{qms.siglas}}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="QuejasForm.controls.tipoQueja.hasError('required')">
+                                    La región de atención es requerida
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
 
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btnCancelar" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" data-bs-dismiss="modal" (click)="guardarQueja(QuejasForm.value)" class="btn btn-primary">Guardar</button>
+                <button type="button" data-bs-dismiss="modal" (click)="guardarQueja(QuejasForm.value)"
+                    class="btn btn-primary">Guardar</button>
 
                 <!-- <button type="button" data-bs-dismiss="modal" (click)="guardarQueja(QuejasForm.value)" class="btn btn-primary">Guardar</button> -->
                 <!-- <button type="button" data-bs-dismiss="modal" (click)="uploadFile()" class="btn btn-primary">Guardar pdf</button> -->

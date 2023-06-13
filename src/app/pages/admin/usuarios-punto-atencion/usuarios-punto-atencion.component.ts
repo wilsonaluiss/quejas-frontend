@@ -8,6 +8,7 @@ import { LoginService } from 'src/app/services/login.service';
 import { ServiceService } from 'src/app/services/service.service';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-usuarios-punto-atencion',
@@ -45,10 +46,13 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
   isLoggedIn = false;
   ipUsuario: string;
   detalleUpatencion: any;
+
+  
   constructor(
     private service: ServiceService,
     private spinner: NgxSpinnerService,
     private loginService: LoginService,
+    private userService: UserService
   ) {
     this.usuarioAtencionForm = new FormGroup({
       region: new FormControl('', Validators.required),
@@ -95,12 +99,14 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
   obtenerUsuarioPuertoAtencion() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'upatencion/listar').toPromise().then(data => {
       this.upatencion = data;
-      this.dataSourceEventos.paginator = this.paginator;
       this.dataSourceEventos.sort = this.sort;
       this.dataSourceEventos = new MatTableDataSource(this.upatencion);
-      console.log('usuarios',this.upatencion);
+      this.dataSourceEventos.paginator = this.paginator;
     });
   }
+
+
+  
 
   obtenerRegion() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'catalogos/regiones').toPromise().then(data => {
@@ -117,7 +123,6 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
   obtenerPuntosAtencion() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'patencion/listar').toPromise().then(data => {
       this.puntosAtencion = data;
-      console.log('puntos de atencion acttivos',this.puntosAtencion);
       this.spinner.hide();
     });
   }
@@ -125,7 +130,6 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
   obtenerUsuarioPuntoAtencion() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'upatencion/listar').toPromise().then(data => {
       this.usuarioUpatencion = data;
-      console.log('upatencion', this.usuarioUpatencion);
       this.spinner.hide();
     });
   }
@@ -134,14 +138,13 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
   obtenerCargos() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'catalogos/cargo').toPromise().then(data => {
       this.catcargos = data;
-      console.log('cargos', this.catcargos);
       this.spinner.hide();
     });
   }
 
   validarDpi() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, `upatencion/validar/dpi/${this.usuarioAtencionForm.value.dpi}`).toPromise().then(data => {
-      console.log('dpi',this.usuarioAtencionForm.value.dpi)
+      console.log('dpi', this.usuarioAtencionForm.value.dpi)
       this.atencion = data;
       console.log(this.atencion);
       if (this.atencion == true) {
@@ -169,9 +172,22 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
       ipUsuarioAgrega: this.ipUsuario,
       fechaAgrega: Number(moment()),
     };
+    const user = {
+      username: data.nombre,
+      password: '123456',
+      nombre: data.nombre,
+      apellido: '',
+      email: data.correo,
+      telefono: '',
+      enabled: true,
+      tipo_usuario: data.cargo == 6 ? 4 : data.cargo == 5 ? 3 : data.cargo == 4 ? 7 : 0,
+    }
+    console.log('user', user)
     console.log('upatencion', guardarAtencion)
     this.service.postData(this.service.BASE_URL_QUEJAS, 'upatencion/crear', guardarAtencion).toPromise().then(data => {
       this.atencion = data;
+      this.userService.anadirUsuario(user).subscribe(
+      )
       this.spinner.hide();
       console.log(this.atencion);
       Swal.fire({
@@ -197,15 +213,14 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
   }
 
 
+
   obtenerRgion() {
     this.evaluarRegion = this.usuarioAtencionForm.get('region')?.value
-    console.log('regiones', this.evaluarRegion)
   }
 
   obtenerPuntoAtencion() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, `patencion/activa/${this.evaluarRegion}`).toPromise().then(data => {
       this.patencionActivas = data;
-      console.log(this.patencionActivas);
     });
   }
 
@@ -213,7 +228,6 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
     this.spinner.show();
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, `upatencion/detalle/${id}`).toPromise().then(data => {
       this.detalleUpatencion = data;
-      console.log('estado',this.detalleUpatencion.estado)
       this.usuarioAtencionForm.get('nombre')?.setValue(this.detalleUpatencion.nombreUsuarioAtencion);
       this.usuarioAtencionForm.get('dpi')?.setValue(this.detalleUpatencion.dpiUsuario);
       this.usuarioAtencionForm.get('correo')?.setValue(this.detalleUpatencion.correoElectronico);
@@ -221,26 +235,22 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
       this.usuarioAtencionForm.get('region')?.setValue(this.detalleUpatencion.regionPatencion);
       this.usuarioAtencionForm.get('puntoAtencion')?.setValue(this.detalleUpatencion.codigoPuntoAtencion);
       this.usuarioAtencionForm.get('estadoUsuario')?.setValue(this.detalleUpatencion.codigoEstado);
-      if(this.detalleUpatencion.regionPatencion == 1){
+      if (this.detalleUpatencion.regionPatencion == 1) {
         this.region = 'Región Central'
-      }else if(this.detalleUpatencion.regionPatencion == 2){
+      } else if (this.detalleUpatencion.regionPatencion == 2) {
         this.region = 'Región Sur'
-      }else if(this.detalleUpatencion.regionPatencion == 3){
+      } else if (this.detalleUpatencion.regionPatencion == 3) {
         this.region = 'Región Nororiente'
-      }else if(this.detalleUpatencion.regionPatencion == 4){
+      } else if (this.detalleUpatencion.regionPatencion == 4) {
         this.region = 'Región Occidente'
       }
 
-      
-      console.log('detalle', this.detalleUpatencion);
-      
       this.spinner.hide();
     });
   }
 
   validarEstado(event: any) {
     let estado = event.target.value;
-    console.log('estado', estado);
   }
 
   obtenerCargo() {
@@ -248,12 +258,11 @@ export class UsuariosPuntoAtencionComponent implements OnInit {
     console.log('cargo', this.datocargo);
   }
 
-  consultarCantidadPa(){
+  consultarCantidadPa() {
     this.spinner.show();
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, `patencion/cantidad/${this.usuarioAtencionForm.value.puntoAtencion}`).toPromise().then(data => {
       this.cantidadPa = data;
-      console.log('cantidad', this.cantidadPa);
-      if(this.cantidadPa == 0){
+      if (this.cantidadPa == 0) {
         this.usuarioAtencionForm.get('puntoAtencion')?.setValue('');
         Swal.fire({
           icon: 'error',

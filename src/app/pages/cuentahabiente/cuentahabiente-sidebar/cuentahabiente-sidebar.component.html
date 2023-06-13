@@ -1,1 +1,11 @@
-<p>cuentahabiente-sidebar works!</p>
+<mat-card>
+    <mat-action-list>
+        <div mat-subheader>Cuentahabiente</div>
+        <button mat-list-item routerLink = "/cuentahabiente-dashboard/cuentahabiente">
+            <mat-icon mat-list-icon >event</mat-icon>Quejas Cuentahabiente
+        </button>
+        <button mat-list-item (click)="logout()">
+            <mat-icon mat-list-icon >logout</mat-icon>Salir
+        </button>
+    </mat-action-list>
+</mat-card>

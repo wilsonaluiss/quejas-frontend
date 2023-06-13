@@ -21,7 +21,6 @@ declare let $: any;
   styleUrls: ['./puntos-atencion.component.css']
 })
 
-
 export class PuntosAtencionComponent implements OnInit {
 
 
@@ -89,7 +88,6 @@ export class PuntosAtencionComponent implements OnInit {
   obtenerPuntosAtencion() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'patencion/listar').toPromise().then(data => {
       this.atencion = data;
-      this.dataSourceEventos.paginator = this.paginator;
       this.estadoatencion = this.atencion.estado == 1 ? 'Activo' : 'Inactivo';
       this.dataSourceEventos = new MatTableDataSource(data);
       this.dataSourceEventos.paginator = this.paginator;
@@ -98,7 +96,6 @@ export class PuntosAtencionComponent implements OnInit {
       this.spinner.hide();
     });
   }
-
 
   obtenerRegion() {
     this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'catalogos/regiones').toPromise().then(data => {

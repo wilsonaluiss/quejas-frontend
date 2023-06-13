@@ -82,6 +82,8 @@ import { OperadorComponent } from './pages/operador/operador/operador.component'
 import { OperadorDashboardComponent } from './pages/operador/operador-dashboard/operador-dashboard.component';
 import { OperadorSidebarComponent } from './pages/operador/operador-sidebar/operador-sidebar.component';
 import { UserSidebarComponent } from './pages/user/user-sidebar/user-sidebar.component';
+import { ConsultaUsuarioComponent } from './pages/user/consulta-usuario/consulta-usuario.component';
+import { AnalisisComponent } from './pages/centralizador/analisis/analisis.component';
 
 @NgModule({
   declarations: [
@@ -109,7 +111,9 @@ import { UserSidebarComponent } from './pages/user/user-sidebar/user-sidebar.com
     OperadorComponent,
     OperadorDashboardComponent,
     OperadorSidebarComponent,
-    UserSidebarComponent
+    UserSidebarComponent,
+    ConsultaUsuarioComponent,
+    AnalisisComponent
   ],
   exports: [
     A11yModule,

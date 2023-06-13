@@ -10,7 +10,7 @@ export class ReglasNegocioService {
 
   /* Metodo para validar numeros 
   @e evento ejecutado desde la vista */
-  /* public soloNumeros(e) {
+  public soloNumeros(e) {
     const key: any = e.keyCode || e.which;
     const teclado: any = String.fromCharCode(key);
     const especiales: any = '8';
@@ -25,5 +25,5 @@ export class ReglasNegocioService {
     if (numero.indexOf(teclado) === -1 && !teclado_especial) {
       return false;
     }
-  } */
+  }
 }

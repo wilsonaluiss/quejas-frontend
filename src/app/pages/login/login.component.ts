@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
 
     this.loginService.generateToken(this.loginData).subscribe(
       (data: any) => {
-        console.log(data);
+        //console.log(data);
         this.loginService.login(data.token);
         this.loginService.getCurrentUser().subscribe(
           (user: any) => {
@@ -54,7 +54,13 @@ export class LoginComponent implements OnInit {
               this.router.navigate(['user-dashboard']);
               this.loginService.loginStatusSubjec.next(true);
             }else if(this.loginService.getUserRol() == 'CUENTAHABIENTE'){
-              this.router.navigate(['user-dashboard']);
+              this.router.navigate(['cuentahabiente-dashboard']);
+              this.loginService.loginStatusSubjec.next(true);
+            }else if(this.loginService.getUserRol() == 'CENTRALIZADOR'){
+              this.router.navigate(['centralizador-dashboard']);
+              this.loginService.loginStatusSubjec.next(true);
+            }else if(this.loginService.getUserRol() == 'OPERADOR'){
+              this.router.navigate(['operador-dashboard']);
               this.loginService.loginStatusSubjec.next(true);
             } else {
               this.snack.open("Usario no encontrado", "OK", {

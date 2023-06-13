@@ -9,7 +9,7 @@ import { ServiceService } from 'src/app/services/service.service';
 import Swal from 'sweetalert2';
 import * as moment from 'moment';
 import { UploadFileService } from 'src/app/services/uploadFileService.service';
-import { stringify } from 'querystring';
+import { ReglasNegocioService } from 'src/app/services/reglas-negocio.service';
 
 interface Ingreso {
   value: string;
@@ -23,6 +23,9 @@ interface Ingreso {
 })
 export class QuejasUsuarioComponent implements OnInit {
 
+  numero: number;
+  medio: any;
+  sigl:any
   cadena: string;
   url: string;
   public file: File = null;
@@ -33,13 +36,16 @@ export class QuejasUsuarioComponent implements OnInit {
   user: any = null;
   isLoggedIn = false;
   ipUsuario: string;
-  quejas: any[] = [];
+  quejas: any;
   ingresos: Ingreso[] = [
     { value: '1', viewValue: 'Telefono' },
     { value: '2', viewValue: 'Correo' },
     { value: '3', viewValue: 'Chat' },
-    { value: '4', viewValue: 'Correo' }
+    { value: '4', viewValue: 'Correo' },
+    { value: '5', viewValue: 'Presencial' },
   ];
+  cantidad: any;
+  qms: any[] = [];
   dataSourceEventos = new MatTableDataSource();
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -48,26 +54,28 @@ export class QuejasUsuarioComponent implements OnInit {
     'nombre',
     'detalleQueja',
     'medioIngreso',
-    'estado',
-    'accion'
+    'estado'
   ];
-
+  numerito: number;
+  corr: any;
   QuejasForm: FormGroup;
   constructor(
     private service: ServiceService,
     private spinner: NgxSpinnerService,
     private loginService: LoginService,
-    private uploadFileService: UploadFileService
+    private uploadFileService: UploadFileService,
+    public reglasNegocio: ReglasNegocioService
   ) {
     this.QuejasForm = new FormGroup({
-      medioIngreso: new FormControl('', Validators.required),
+      medioIngreso: new FormControl('5'),
       nombre: new FormControl('', Validators.required),
       correoElectronico: new FormControl('', [Validators.required, Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$')]),
       telefono: new FormControl('', Validators.required),
       oficina: new FormControl('', Validators.required),
       nombreEmpleado: new FormControl('', Validators.required),
       detalleQueja: new FormControl('', Validators.required),
-      documento: new FormControl('', Validators.required)
+      documento: new FormControl(''),
+      tipoQueja: new FormControl('', Validators.required),
     });
   }
 
@@ -75,16 +83,19 @@ export class QuejasUsuarioComponent implements OnInit {
     this.spinner.show();
     this.isLoggedIn = this.loginService.isLoggedIn();
     this.user = this.loginService.getUser();
+    console.log('user', this.user.id);
     this.loginService.loginStatusSubjec.asObservable().subscribe(
       data => {
         this.isLoggedIn = this.loginService.isLoggedIn();
         this.user = this.loginService.getUser();
+        console.log('user', this.user);
       }
     )
     this.service.getIp().toPromise().then((res: any) => {
       this.ipUsuario = res.ip;
       console.log('my ip' + this.ipUsuario);
     });
+    this.obtenerQMS();
     this.obtenerQuejas();
     this.spinner.hide();
   }
@@ -99,51 +110,92 @@ export class QuejasUsuarioComponent implements OnInit {
     }
   }
 
-  obtenerQuejas() {
-    this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'queja/listar').toPromise().then(data => {
-      this.quejas = data;
-      this.dataSourceEventos.paginator = this.paginator;
-      this.dataSourceEventos.sort = this.sort;
-      this.dataSourceEventos = new MatTableDataSource(this.quejas);
-      console.log('usuarios', this.quejas);
+  obtenerQMS() {
+    this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, 'tipoQueja/listar').toPromise().then(data => {
+      this.qms = data;
+      console.log(data);
     });
   }
 
-  
+  async obtenerQuejas() {
+    this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, `queja/listar/${this.user.id}`).toPromise().then(data => {
+      this.quejas = data;
+      this.medio = this.quejas.codigoMedioIngreso;
+      data.forEach(element => {
+        element.medioIngreso = this.ingresos[element.codigoMedioIngreso - 1].viewValue;
+        element.estado = element.codigoEstadoInterno == 1 ? 'Presentada' : '';
+      });
+      console.log('queja??', this.quejas);
+      this.dataSourceEventos.sort = this.sort;
+      this.dataSourceEventos = new MatTableDataSource(this.quejas);
+      this.dataSourceEventos.paginator = this.paginator;
+    });
+  }
+
+
+  obtenerNumero(event: any) {
+    this.numero = event
+    console.log(this.numero);
+  }
+
+
+  /* async obtenerCantidadQuejas() {
+    await this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, `queja/queja/${this.numero}`).toPromise().then(data => {
+      this.cantidad = data;
+      console.log(data);
+    });
+  } */
+  numeroQueja() {
+    console.log(this.QuejasForm.get('tipoQueja').value);
+    this.numero = this.QuejasForm.get('tipoQueja').value;
+    this.obtenerQMS();
+    this.qms.forEach(element => {
+      if (element.codigoTipoQueja == this.numero) {
+        this.sigl= element.siglas;
+      }
+      
+    });
+  }
+
 
   async guardarQueja(data: any) {
     this.spinner.show();
-    // SUBIR ARCHIVO
+    
     this.uploadFileService.subirArchivo(this.file, 'CARPETA/SUBCARPETA')
-    .then((res: any) => {
-      this.url = res.secure_url;
-      this.cadena = this.url;
-      // se me olvidaba XD
-      const queja = {
-        codigoEtapa: 1,
-        codigoRegion: 1,
-        codigoTipoCreador: 1,
-        codigoMedioIngreso: 2,
-        codigoEstadoExterno: 1,
-        codigoEstadoInterno: 1,
-        codigoTipoQueja: 7,
-        codigoPuntoAtencion: 8,
-        dpiUsuario: 1,
-        nombre: data.nombre,
-        correoElectronico: data.correoElectronico,
-        nombreEmpleado: data.nombreEmpleado,
-        detalleQueja: data.detalleQueja,
-        correlativo: 1,
-        documentoSoporte: this.url,
-        justificacion: 1,
-        anioQueja: this.anioActual,
-        usuarioAgrega: this.user.username,
-        ipUsuarioAgrega: this.ipUsuario,
-        fechaAgrega: Number(moment()),
-        
-      };
-        console.log(queja);
+      .then(async (res: any) => {
+        this.url = res.secure_url;
+        await this.service.getData<any[]>(this.service.BASE_URL_QUEJAS, `queja/queja/${this.numero}`).toPromise().then(data => {
+          this.cantidad = (data);
+          this.numerito = +this.cantidad.queja;
+          this.corr = this.numerito + 1;
+        });
+        const queja = {
+          codigoEtapa: 1,
+          codigoRegion: 1,
+          codigoTipoCreador: this.user.id,
+          codigoMedioIngreso: 5,
+          codigoEstadoExterno: 1,
+          codigoEstadoInterno: 1,
+          codigoTipoQueja: data.tipoQueja,
+          codigoPuntoAtencion: 8,
+          dpiUsuario: 1,
+          nombre: data.nombre,
+          correoElectronico: data.correoElectronico,
+          nombreEmpleado: data.nombreEmpleado,
+          detalleQueja: data.detalleQueja,
+          correlativo: `${this.sigl}-${this.numerito+1}-${this.anioActual}`,
+          documentoSoporte: this.url ? this.url : '',
+          justificacion: 1,
+          anioQueja: this.anioActual,
+          usuarioAgrega: this.user.username,
+          ipUsuarioAgrega: this.ipUsuario,
+          fechaAgrega: Number(moment())
+
+        };
+        console.log(queja.correlativo);
         this.service.postData(this.service.BASE_URL_QUEJAS, 'queja/crear', queja).toPromise().then(async data => {
+          this.obtenerQuejas();
+          this.enviarNotificacion();
           this.spinner.hide();
           Swal.fire({
             titleText: `Su solicitud se ha creado con éxito`,
@@ -165,15 +217,14 @@ export class QuejasUsuarioComponent implements OnInit {
           });
         });
       }).catch(err => {
+        this.url = '';
         Swal.fire({
-          titleText: 'Error al cargar archivo',
-          text: 'El archivo no se ha cargado con exito',
+          titleText: 'Datos incorrectos',
+          text: 'Verifique que los datos ingresados sean correctos',
           icon: 'error',
         });
       });
 
-
-    
   }
 
   uploadFile() {
@@ -217,7 +268,7 @@ export class QuejasUsuarioComponent implements OnInit {
       return;
     }
     this.file = documento;
-    
+
     let reader = new FileReader();
     let urlImagenTemp = reader.readAsDataURL(documento);
     reader.onloadend = () => this.strImage = reader.result;
@@ -229,4 +280,18 @@ export class QuejasUsuarioComponent implements OnInit {
     console.log(this.documento);
   }
 
+
+  enviarNotificacion() {
+    this.spinner.show();
+    const notificacion = {
+      destinatario: this.QuejasForm.value.correoElectronico,
+      destino: "bancoprestamito@gmail.com",
+      asunto: "Notificación de queja",
+      cuerpo: `Señor cuentahabiente, agredecemos su comunicación, le informamos que su queja ha sido recibida exitosamente. Para el seguimiento o cualquier consulta relacionada, no olvide que el numero de su queja es: ${this.sigl}-${this.numerito+1}-${this.anioActual}`
+    };
+    this.service.postData(this.service.BASE_URL_QUEJAS, 'correo/send', notificacion).toPromise().then(async data => { }).catch(error => {
+      console.error(error);
+      this.spinner.hide();
+    });
+  }
 }
