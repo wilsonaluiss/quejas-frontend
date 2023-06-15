@@ -7,14 +7,14 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve.js",
+    "start": "node server.js",
     "build": "ng build",
-    "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
     "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "e2e": "ng e2e",
     "lite": "lite-server",
-    "postinstall": "ng build --prod"
+    "postinstall": "ng build --prod --stats-json"
   },
   "private": true,
   "dependencies": {
