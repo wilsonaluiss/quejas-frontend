@@ -14,7 +14,7 @@
     "e2e": "ng e2e",
     "watch": "ng build --watch --configuration development",
     "lite": "lite-server",
-    "postinstall": "ng build --aot --prod"
+    "postinstall": "ng build --prod"
   },
   "private": true,
   "dependencies": {
