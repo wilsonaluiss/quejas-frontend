@@ -1706,7 +1706,7 @@ __webpack_require__.r(__webpack_exports__);
 // The list of file replacements can be found in `angular.json`.
 const environment = {
     production: false,
-    BASE_URL_QUEJAS: 'http://localhost:8080',
+    BASE_URL_QUEJAS: 'https://quejas-81f3f2221b01.herokuapp.com',
 };
 /*
  * For easier debugging in development mode, you can import the following file
