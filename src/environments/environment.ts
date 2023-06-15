@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  BASE_URL_QUEJAS: 'http://localhost:8080',
+  BASE_URL_QUEJAS: 'https://quejas-81f3f2221b01.herokuapp.com',
 };
 
 /*
